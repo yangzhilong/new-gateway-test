@@ -41,8 +41,10 @@ public class TestService {
 			}
 
 			br.close();
+			
+			Thread.sleep(5000L);
 			return sb.toString();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
