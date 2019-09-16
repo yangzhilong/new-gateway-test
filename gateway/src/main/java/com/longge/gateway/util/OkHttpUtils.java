@@ -9,6 +9,7 @@ import java.util.Objects;
 import com.alibaba.fastjson.JSONObject;
 
 import lombok.NonNull;
+import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -18,6 +19,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
+ * 参数中Callback表示发送异步请求
  * @author roger yang
  * @date 9/16/2019
  */
@@ -35,12 +37,35 @@ public class OkHttpUtils {
     public static <T> T get(@NonNull String url, Class<T> clasz) {
         return get(url, null, null, clasz);
     }
+    
+    public static void get(@NonNull String url, Callback callback) {
+        get(url, null, null, callback);
+    }
 
     public static <T> T get(@NonNull String url, Map<String, String> queryParameter, Class<T> clasz) {
         return get(url, null, queryParameter, clasz);
     }
+    
+    public static void get(@NonNull String url, Map<String, String> queryParameter, Callback callback) {
+        get(url, null, queryParameter, callback);
+    }
 
     public static <T> T get(@NonNull String url, Map<String, String> headerParameter, Map<String, String> queryParameter, Class<T> clasz) {
+        Request request = processGetParameter(url, headerParameter, queryParameter);
+
+        try (Response resp = okHttpClient.newCall(request).execute();) {
+            return processResponse(resp, clasz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public static void get(@NonNull String url, Map<String, String> headerParameter, Map<String, String> queryParameter, Callback callback) {
+        Request request = processGetParameter(url, headerParameter, queryParameter);
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+    
+    private static Request processGetParameter(String url, Map<String, String> headerParameter, Map<String, String> queryParameter) {
         Request.Builder builder = new Request.Builder();
         if (!isEmptyMap(headerParameter)) {
             builder.headers(Headers.of(headerParameter));
@@ -63,12 +88,7 @@ public class OkHttpUtils {
             });
             builder.url(sb.toString());
         }
-
-        try (Response resp = okHttpClient.newCall(builder.build()).execute();) {
-            return processResponse(resp, clasz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return builder.build();
     }
 
     /**
@@ -78,12 +98,33 @@ public class OkHttpUtils {
     public static <T> T postJson(@NonNull String url, Class<T> clasz) {
         return postJson(url, null, null, clasz);
     }
+    
+    public static void postJson(@NonNull String url, Callback callback) {
+        postJson(url, null, null, callback);
+    }
 
     public static <T> T postJson(@NonNull String url, Map<String, String> headerParameter, Class<T> clasz) {
         return postJson(url, headerParameter, null, clasz);
     }
     
+    public static void postJson(@NonNull String url, Map<String, String> headerParameter, Callback callback) {
+        postJson(url, headerParameter, null, callback);
+    }
+    
     public static <T> T postJson(@NonNull String url, Map<String, String> headerParameter, Object bodyObj, Class<T> clasz) {
+        Request request = processPostJsonParameter(url, headerParameter, bodyObj);
+        try (Response resp = okHttpClient.newCall(request).execute();) {
+            return processResponse(resp, clasz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void postJson(@NonNull String url, Map<String, String> headerParameter, Object bodyObj, Callback callback) {
+        Request request = processPostJsonParameter(url, headerParameter, bodyObj);
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+    
+    private static Request processPostJsonParameter(String url, Map<String, String> headerParameter, Object bodyObj) {
         Request.Builder builder = new Request.Builder().url(url);
         if(!Objects.isNull(bodyObj)) {
             RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(bodyObj));
@@ -95,11 +136,7 @@ public class OkHttpUtils {
         if (!isEmptyMap(headerParameter)) {
             builder.headers(Headers.of(headerParameter));
         }
-        try (Response resp = okHttpClient.newCall(builder.build()).execute();) {
-            return processResponse(resp, clasz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return builder.build();
     }
     
     /**
@@ -109,12 +146,33 @@ public class OkHttpUtils {
     public static <T> T postForm(@NonNull String url, Class<T> clasz) {
         return postForm(url, null, null, clasz);
     }
+    
+    public static void postForm(@NonNull String url, Callback callback) {
+        postForm(url, null, null, callback);
+    }
 
     public static <T> T postForm(@NonNull String url, Map<String, String> headerParameter, Class<T> clasz) {
         return postForm(url, headerParameter, null, clasz);
     }
     
+    public static void postForm(@NonNull String url, Map<String, String> headerParameter, Callback callback) {
+        postForm(url, headerParameter, null, callback);
+    }
+    
     public static <T> T postForm(@NonNull String url, Map<String, String> headerParameter, Map<String, String> parameters, Class<T> clasz) {
+        Request request = processPostFormParameter(url, headerParameter, parameters);
+        try (Response resp = okHttpClient.newCall(request).execute();) {
+            return processResponse(resp, clasz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void postForm(@NonNull String url, Map<String, String> headerParameter, Map<String, String> parameters, Callback callback) {
+        Request request = processPostFormParameter(url, headerParameter, parameters);
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+    
+    private static Request processPostFormParameter(String url, Map<String, String> headerParameter, Map<String, String> parameters) {
         Request.Builder builder = new Request.Builder().url(url);
         if(!Objects.isNull(parameters)) {
             FormBody.Builder formBuilder = new FormBody.Builder();
@@ -126,11 +184,7 @@ public class OkHttpUtils {
         if (!isEmptyMap(headerParameter)) {
             builder.headers(Headers.of(headerParameter));
         }
-        try (Response resp = okHttpClient.newCall(builder.build()).execute();) {
-            return processResponse(resp, clasz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return builder.build();
     }
     
     @SuppressWarnings("unchecked")
