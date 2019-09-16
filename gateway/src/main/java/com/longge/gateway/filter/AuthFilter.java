@@ -18,7 +18,7 @@ public class AuthFilter implements GlobalFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-		System.out.println("222222222222222");
+		System.out.println("auth filter is run");
 		String key = exchange.getRequest().getQueryParams().getFirst("key");
 		if(null == key) {
 			System.out.println("no key, do chain");

@@ -4,12 +4,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-import com.longge.gateway.config.OkHttpConfig;
 import com.longge.gateway.util.OkHttpUtils;
 
+import lombok.Getter;
+import lombok.Setter;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 
@@ -17,7 +19,6 @@ import okhttp3.OkHttpClient;
  * @author roger yang
  * @date 9/16/2019
  */
-@Configuration
 public class OkHttpConfiguration {
     @Resource
     private OkHttpConfig okHttpConfig;
@@ -39,5 +40,17 @@ public class OkHttpConfiguration {
     @Bean
     public ConnectionPool pool() {
         return new ConnectionPool(okHttpConfig.getMaxIdle(), okHttpConfig.getKeepAliveDurationSec(), TimeUnit.SECONDS);
+    }
+    
+    @Component
+    @ConfigurationProperties(prefix = "okhttp")
+    @Getter
+    @Setter
+    static class OkHttpConfig {
+        private Long connectTimeoutMs;
+        private Long readTimeoutMs;
+        private Long writeTimeoutMs;
+        private Integer maxIdle;
+        private Long keepAliveDurationSec;
     }
 }
