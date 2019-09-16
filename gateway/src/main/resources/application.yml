@@ -21,4 +21,9 @@ spring:
         - Path=/api/**
         filters:
         - StripPrefix=1
-        
+okhttp:
+  connect-timeout-ms: 500
+  keep-alive-duration-sec: 5000
+  max-idle: 100
+  read-timeout-ms: 500
+  write-timeout-ms: 500
