@@ -9,22 +9,24 @@ import org.springframework.web.server.ServerWebExchange;
 
 import com.longge.gateway.service.TestService;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class AuthFilter implements GlobalFilter {
 	@Resource
 	TestService testService;
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-		System.out.println("auth filter is run");
+		log.info("auth filter is run");
 		String key = exchange.getRequest().getQueryParams().getFirst("key");
 		if(null == key) {
-			System.out.println("no key, do chain");
+			log.info("no key, do chain");
 		} else {
 			String result = testService.call(exchange);
-			System.out.println(result);
+			log.info(result);
 		}
 		return chain.filter(exchange);
 	}
