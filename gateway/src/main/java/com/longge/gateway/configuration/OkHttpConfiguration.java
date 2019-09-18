@@ -3,10 +3,12 @@
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import com.longge.gateway.util.OkHttpUtils;
 
@@ -46,11 +48,17 @@ public class OkHttpConfiguration {
     @ConfigurationProperties(prefix = "okhttp")
     @Getter
     @Setter
+    @Validated
     static class OkHttpConfig {
+        @NotNull
         private Long connectTimeoutMs;
+        @NotNull
         private Long readTimeoutMs;
+        @NotNull
         private Long writeTimeoutMs;
+        @NotNull
         private Integer maxIdle;
+        @NotNull
         private Long keepAliveDurationSec;
     }
 }
